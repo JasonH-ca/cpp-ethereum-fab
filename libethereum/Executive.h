@@ -130,8 +130,13 @@ public:
 
     /// Revert all changes made to the state by this execution.
     void revert();
-
-    /// Used only in tests
+#ifdef FASC_BUILD	
+    std::shared_ptr<ExtVM> getExternalVMFace() {
+        return this->m_ext;
+    }
+	std::string ToStringLogs(const LogEntries& input);
+#endif    
+	/// Used only in tests
     ExtVM const& extVM() const { return *m_ext; }
 
 private:

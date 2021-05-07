@@ -13,7 +13,9 @@
 #include <cryptopp/pwdbased.h>
 #include <cryptopp/sha.h>
 #include <cryptopp/modes.h>
+#ifndef FASC_BUILD
 #include <libscrypt.h>
+#endif
 #include <libdevcore/SHA3.h>
 #include <libdevcore/RLP.h>
 #include "AES.h"
@@ -312,6 +314,7 @@ bytesSec dev::pbkdf2(string const& _pass, bytes const& _salt, unsigned _iteratio
     return ret;
 }
 
+#ifndef FASC_BUILD
 bytesSec dev::scrypt(std::string const& _pass, bytes const& _salt, uint64_t _n, uint32_t _r, uint32_t _p, unsigned _dkLen)
 {
     bytesSec ret(_dkLen);
@@ -329,6 +332,7 @@ bytesSec dev::scrypt(std::string const& _pass, bytes const& _salt, uint64_t _n, 
         BOOST_THROW_EXCEPTION(CryptoException() << errinfo_comment("Key derivation failed."));
     return ret;
 }
+#endif
 
 KeyPair::KeyPair(Secret const& _sec):
     m_secret(_sec),
@@ -392,7 +396,11 @@ bool ecdh::agree(Secret const& _s, Public const& _r, Secret& o_s) noexcept
     // FIXME: We should verify the public key when constructed, maybe even keep
     //        secp256k1_pubkey as the internal data of Public.
     std::array<byte, 33> compressedPoint;
+#ifndef FASC_BUILD	
     if (!secp256k1_ecdh_raw(ctx, compressedPoint.data(), &rawPubkey, _s.data()))
+#else 
+	if (!secp256k1_ecdh(ctx, compressedPoint.data(), &rawPubkey, _s.data()))	
+#endif	
         return false;  // Invalid secret key.
     std::copy(compressedPoint.begin() + 1, compressedPoint.end(), o_s.writable().data());
     return true;

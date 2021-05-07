@@ -71,7 +71,13 @@ enum class Network
     EIP158ToByzantiumAt5 = 103,
     ByzantiumToConstantinopleFixAt5 = 104,
 
+#ifdef FASC_BUILD
+    Special = 0xff,  ///< Something else.
+	fascMainNetwork = 9,    ///< FASC Homestead + EIP150 + EIP158 Rules active from block 0 to enum class Network
+	fascTestNetwork = 10
+#else
     Special = 0xff  ///< Something else.
+#endif    
 };
 
 std::string const& genesisInfo(Network _n);

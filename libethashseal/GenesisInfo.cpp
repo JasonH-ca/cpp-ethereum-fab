@@ -37,6 +37,12 @@ using namespace dev;
 #include "genesis/test/homesteadToEIP150At5Test.cpp"
 #include "genesis/test/transitionnetTest.cpp"
 
+// FASC configurations
+#ifdef FASC_BUILD
+#include "genesis/fascMainNetwork.cpp"
+#include "genesis/fascTestNetwork.cpp"
+#endif
+
 static dev::h256 const c_genesisDefaultStateRoot;
 
 std::string const& dev::eth::genesisInfo(Network _n)
@@ -86,6 +92,12 @@ std::string const& dev::eth::genesisInfo(Network _n)
         return c_genesisInfoByzantiumToConstantinopleFixAt5Test;
     case Network::TransitionnetTest: return c_genesisInfoTest;
 
+    // FASC genesis
+#ifdef FASC_BUILD    
+    case Network::fascMainNetwork: return c_genesisInfoFascMainNetwork;
+    case Network::fascTestNetwork: return c_genesisInfoFascTestNetwork;
+#endif
+
     default:
         throw std::invalid_argument("Invalid network value");
     }
@@ -95,6 +107,10 @@ h256 const& dev::eth::genesisStateRoot(Network _n)
 {
     switch (_n)
     {
+#ifdef FASC_BUILD        
+    case Network::fascMainNetwork: return c_genesisStateRootFascMainNetwork;
+    case Network::fascTestNetwork: return c_genesisStateRootFascTestNetwork;
+#endif    
     case Network::MainNetwork: return c_genesisStateRootMainNetwork;
     case Network::Ropsten:
     case Network::MainNetworkTest:

@@ -10,7 +10,9 @@
 #include <libdevcrypto/Blake2.h>
 #include <libdevcrypto/Common.h>
 #include <libdevcrypto/Hash.h>
+#ifndef FASC_BUILD
 #include <libdevcrypto/LibSnark.h>
+#endif
 #include <libethcore/Common.h>
 using namespace std;
 using namespace dev;
@@ -201,6 +203,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(modexp)(bytesConstRef _in, ChainOperationParams 
     return multComplexity(maxLength) * max<bigint>(adjustedExpLength, 1) / 20;
 }
 
+#ifndef FASC_BUILD
 ETH_REGISTER_PRECOMPILED(alt_bn128_G1_add)(bytesConstRef _in)
 {
     return dev::crypto::alt_bn128_G1_add(_in);
@@ -234,6 +237,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(alt_bn128_pairing_product)
     auto const k = _in.size() / 192;
     return _blockNumber < _chainParams.istanbulForkBlock ? 100000 + k * 80000 : 45000 + k * 34000;
 }
+#endif
 
 ETH_REGISTER_PRECOMPILED(blake2_compression)(bytesConstRef _in)
 {

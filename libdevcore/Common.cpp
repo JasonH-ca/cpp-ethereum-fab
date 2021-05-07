@@ -10,13 +10,21 @@
 #include <windows.h>
 #endif
 
+#ifndef FASC_BUILD
 #include <aleth/buildinfo.h>
+#endif
 
 using namespace std;
 
 namespace dev
 {
+#ifdef FASC_BUILD
+#define ETH_PROJECT_VERSION "1.8.0"
+char const* Version = ETH_PROJECT_VERSION;
+#else
 char const* Version = aleth_get_buildinfo()->project_version;
+#endif
+
 bytes const NullBytes;
 std::string const EmptyString;
 

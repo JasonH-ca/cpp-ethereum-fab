@@ -18,13 +18,18 @@ namespace eth
 {
 namespace
 {
+#ifdef FASC_BUILD
+DEV_SIMPLE_EXCEPTION(VMKindNotSupported);
+#endif
 auto g_kind = VMKind::Legacy;
 
 /// The pointer to EVMC create function in DLL EVMC VM.
 ///
 /// This variable is only written once when processing command line arguments,
 /// so access is thread-safe.
+#ifndef FASC_BUILD
 std::unique_ptr<EVMC> g_evmcDll;
+#endif
 
 /// A helper type to build the tabled of VM implementations.
 ///
@@ -57,6 +62,7 @@ void setVMKind(const std::string& _name)
         }
     }
 
+#ifndef FASC_BUILD
     // If no match for predefined VM names, try loading it as an EVMC VM DLL.
     g_kind = VMKind::DLL;
 
@@ -90,6 +96,9 @@ void setVMKind(const std::string& _name)
 
     cnote << "Loaded EVMC module: " << g_evmcDll->name() << " " << g_evmcDll->version() << " ("
           << _name << ")";
+#else
+    BOOST_THROW_EXCEPTION(VMKindNotSupported() << errinfo_comment("VM " + _name + "not supported"));
+#endif
 }
 }  // namespace
 
@@ -169,16 +178,20 @@ VMPtr VMFactory::create()
 VMPtr VMFactory::create(VMKind _kind)
 {
     static const auto default_delete = [](VMFace * _vm) noexcept { delete _vm; };
+#ifndef FASC_BUILD    
     static const auto null_delete = [](VMFace*) noexcept {};
+#endif
 
     switch (_kind)
     {
     case VMKind::Interpreter:
         return {new EVMC{evmc_create_aleth_interpreter()}, default_delete};
+#ifndef FASC_BUILD            
     case VMKind::DLL:
         assert(g_evmcDll != nullptr);
         // Return "fake" owning pointer to global EVMC DLL VM.
         return {g_evmcDll.get(), null_delete};
+#endif        
     case VMKind::Legacy:
     default:
         return {new LegacyVM, default_delete};

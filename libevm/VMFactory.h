@@ -15,7 +15,9 @@ enum class VMKind
 {
     Interpreter,
     Legacy,
+#ifndef FASC_BUILD    
     DLL
+#endif
 };
 
 /// Returns the EVMC options parsed from command line.

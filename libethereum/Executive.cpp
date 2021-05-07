@@ -4,7 +4,9 @@
 
 #include "Executive.h"
 #include "Block.h"
+#ifndef FASC_BUILD
 #include "BlockChain.h"
+#endif
 #include "ExtVM.h"
 #include "Interface.h"
 #include "StandardTrace.h"
@@ -13,7 +15,9 @@
 #include <libethcore/CommonJS.h>
 #include <libevm/LegacyVM.h>
 #include <libevm/VMFactory.h>
-
+#ifdef FASC_BUILD
+#include "encodings_crypto.h"
+#endif
 using namespace std;
 using namespace dev;
 using namespace dev::eth;
@@ -44,6 +48,7 @@ std::string dumpStorage(ExtVM const& _ext)
 };
 }  // namespace
 
+#ifndef FASC_BUILD
 Executive::Executive(Block& _s, BlockChain const& _bc, unsigned _level)
   : m_s(_s.mutableState()),
     m_envInfo(_s.info(), _bc.lastBlockHashes(), 0, _bc.chainID()),
@@ -69,6 +74,7 @@ Executive::Executive(
     m_sealEngine(*_bc.sealEngine())
 {
 }
+#endif
 
 u256 Executive::gasUsed() const
 {
@@ -471,3 +477,43 @@ void Executive::revert()
     m_newAddress = {};
     m_s.rollback(m_savepoint);
 }
+
+#ifdef FASC_BUILD
+std::string LogEntry::ToString() const {
+    std::stringstream out;
+    out << "Address: " << this->address << ", data: " << Encodings::toHexString(this->data);
+    std::string dataString(this->data.begin(), this->data.end());
+    // Perhaps this->data is a human-readable english ascii string ?
+    // If so, we expect the string to contain bytes in the range [32,126].
+    // If that is the case, we append the string to the output of this function.
+    bool isGoodAsString = true;
+    for (unsigned i = 0; i < dataString.size(); i ++) {
+        if (dataString[i] < 32 || dataString[i] > 126) {
+            isGoodAsString = false;
+            break;
+        }
+    }
+    if (isGoodAsString) {
+        out << " [" << dataString << "]";
+    }
+    return out.str();
+}
+
+std::string Executive::ToStringLogs(const LogEntries& input) {
+    std::stringstream out;
+    unsigned maxEntriesToDisplay = 20;
+    unsigned entriesToDisplay = input.size();
+    if (entriesToDisplay > maxEntriesToDisplay) {
+        entriesToDisplay = maxEntriesToDisplay;
+        out << input.size() << " log entries, showing first " << entriesToDisplay << " only.\n";
+    } else {
+        out << input.size() << " log entries.\n";
+    }
+    for (unsigned i = 0; i < entriesToDisplay; i ++) {
+        const LogEntry& currentLog = input[i];
+        out << currentLog.ToString() << "\n";
+    }
+    return out.str();
+}
+#endif
+

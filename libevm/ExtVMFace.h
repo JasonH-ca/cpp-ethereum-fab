@@ -245,7 +245,13 @@ public:
     /// Revert any changes made (by any of the other calls).
     virtual void log(h256s&& _topics, bytesConstRef _data)
     {
+#ifndef FASC_BUILD
         sub.logs.push_back(LogEntry(myAddress, std::move(_topics), _data.toBytes()));
+#else
+        LogEntry incoming = LogEntry(myAddress, std::move(_topics), _data.toBytes()); 
+        sub.logs.push_back(incoming);
+        this->logsGenerated.push_back(incoming);
+#endif
     }
 
     /// Hash of a block if within the last 256 blocks, or h256() otherwise.
@@ -262,6 +268,9 @@ private:
 
 public:
     // TODO: make private
+#ifdef FASC_BUILD	
+    LogEntries logsGenerated;   ///< Generated logs. If the VM raised an exception (for example, via solidity require(false)), then the logs will be reverted.
+#endif
     Address myAddress;  ///< Address associated with executing code (a contract, or contract-to-be).
     Address caller;     ///< Address which sent the message (either equal to origin or a contract).
     Address origin;     ///< Original transactor.

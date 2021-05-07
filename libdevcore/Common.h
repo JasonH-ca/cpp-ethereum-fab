@@ -99,6 +99,9 @@ using bytesSec = secure_vector<byte>;
 
 // Numeric types.
 using bigint = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<>>;
+#ifdef FASC_BUILD
+using u8 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<8, 8, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
+#endif
 using u64 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<64, 64, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
 using u128 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<128, 128, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
 using u256 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<256, 256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
@@ -124,6 +127,11 @@ using u256HashMap = std::unordered_map<u256, u256>;
 
 // String types.
 using strings = std::vector<std::string>;
+
+#ifdef FASC_BUILD
+// Fixed-length string types.
+using string32 = std::array<char, 32>;
+#endif
 
 // Null/Invalid values for convenience.
 extern bytes const NullBytes;
@@ -170,6 +178,19 @@ template <> inline u256 exp10<0>()
 {
     return u256(1);
 }
+
+#ifdef FASC_BUILD
+/// Converts given multiprecision number to standard number type
+template <typename T> uint64_t toUint64(T _u)
+{
+    return static_cast<uint64_t>(u64(_u));
+}
+
+template <typename T> uint8_t toUint8(T _u)
+{
+    return static_cast<uint8_t>(u8(_u));
+}
+#endif
 
 /// @returns the absolute distance between _a and _b.
 template <class N>

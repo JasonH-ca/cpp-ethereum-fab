@@ -193,7 +193,9 @@ public:
 
     /// Execute @a _txCount transactions of a given block.
     /// This will change the state accordingly.
+#ifndef FASC_BUILD    
     void executeBlockTransactions(Block const& _block, unsigned _txCount, LastBlockHashesFace const& _lastHashes, SealEngineFace const& _sealEngine);
+#endif
 
     /// Check if the address is in use.
     bool addressInUse(Address const& _address) const;
@@ -316,8 +318,11 @@ public:
     void rollback(size_t _savepoint);
 
     ChangeLog const& changeLog() const { return m_changeLog; }
-
+#ifndef FASC_BUILD
 private:
+#else
+protected:
+#endif
     /// Turns all "touched" empty accounts into non-alive accounts.
     void removeEmptyAccounts();
 
@@ -362,7 +367,9 @@ private:
 
 std::ostream& operator<<(std::ostream& _out, State const& _s);
 
+#ifndef FASC_BUILD
 State& createIntermediateState(State& o_s, Block const& _block, unsigned _txIndex, BlockChain const& _bc);
+#endif
 
 template <class DB>
 AddressHash commit(AccountMap const& _cache, SecureTrieDB<Address, DB>& _state);

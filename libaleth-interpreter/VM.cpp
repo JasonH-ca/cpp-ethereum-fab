@@ -4,7 +4,11 @@
 #include "interpreter.h"
 #include "VM.h"
 
+#ifndef FASC_BUILD
 #include <aleth/version.h>
+#else
+constexpr auto aleth_version = "1.8.0+commit.255a75e.dirty";
+#endif
 
 namespace
 {

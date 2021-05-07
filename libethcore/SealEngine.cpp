@@ -163,6 +163,16 @@ SealEngineFace* SealEngineRegistrar::create(ChainOperationParams const& _params)
 
 EVMSchedule const& SealEngineBase::evmSchedule(u256 const& _blockNumber) const
 {
+    //////////////////////////////////////////////////////// // fasc
+#ifdef FASC_BUILD    
+	if (u256(0) == chainParams().EIP158ForkBlock && 
+		u256(0) == chainParams().EIP150ForkBlock &&
+		u256(0) == chainParams().homesteadForkBlock &&
+		 false  == chainParams().allowFutureBlocks){
+			return getFascSchedule();
+	}
+#endif    
+	////////////////////////////////////////////////////////
     return chainParams().scheduleForBlockNumber(_blockNumber);
 }
 

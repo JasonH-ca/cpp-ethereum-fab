@@ -312,7 +312,10 @@ private:
     Logger m_loggerDetail{createLogger(VerbosityTrace, "bq")};
 };
 
+#ifndef FASC_BUILD
 boost::log::formatting_ostream& operator<<(
     boost::log::formatting_ostream& _out, BlockQueueStatus const& _s);
 }
+#endif
+
 }

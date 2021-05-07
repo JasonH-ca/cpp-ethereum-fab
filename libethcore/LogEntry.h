@@ -28,7 +28,9 @@ struct LogEntry
 	void streamRLP(RLPStream& _s) const;
 
 	LogBloom bloom() const;
-
+#ifdef FASC_BUILD	
+	std::string ToString()const;
+#endif
 	Address address;
 	h256s topics;
 	bytes data;

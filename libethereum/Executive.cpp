@@ -227,6 +227,13 @@ bool Executive::call(CallParameters const& _p, u256 const& _gasPrice, Address co
         }
     }
 
+#ifdef FASC_BUILD
+	//////////////////////////////////////////////// // fasc
+	if(!m_s.addressInUse(_p.receiveAddress))
+		m_sealEngine.deleteAddresses.insert(_p.receiveAddress);
+	////////////////////////////////////////////////
+#endif
+
     // Transfer ether.
     m_s.transferBalance(_p.senderAddress, _p.receiveAddress, _p.valueTransfer);
     return !m_ext;

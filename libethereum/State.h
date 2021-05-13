@@ -230,7 +230,11 @@ public:
      * @param _to Account to which @a _value will be added.
      * @param _value Amount to be transferred.
      */
+#ifdef FASC_BUILD
+    virtual void transferBalance(Address const& _from, Address const& _to, u256 const& _value) { subBalance(_from, _value); addBalance(_to, _value); }
+#else     
     void transferBalance(Address const& _from, Address const& _to, u256 const& _value) { subBalance(_from, _value); addBalance(_to, _value); }
+#endif
 
     /// Get the root of the storage of an account.
     h256 storageRoot(Address const& _contract) const;

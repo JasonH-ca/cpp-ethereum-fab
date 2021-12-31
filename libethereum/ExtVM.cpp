@@ -164,6 +164,7 @@ void ExtVM::selfdestruct(Address _a)
     if(!m_s.addressInUse(_a)){
 		m_sealEngine.deleteAddresses.insert(_a);
 	}
+    m_s.transferBalance(myAddress, _a, m_s.balance(myAddress));
 #endif
 
     m_s.addBalance(_a, m_s.balance(myAddress));
